@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { Reveal } from "../Reveal";
-import { useState, ChangeEvent, FormEvent } from "react";
+import { useState, ChangeEvent, FormEvent, KeyboardEvent  } from "react";
+import { departamentos, ciudades } from "./CtaDark.data";
 
 interface FormData {
     nombre: string;
@@ -27,15 +28,10 @@ export function CtaDark() {
     const [codigoSorteo, setCodigoSorteo] = useState<string | null>(null);
     const [mensajeExito, setMensajeExito] = useState<string | null>(null);
 
-    const departamentos = ["Antioquia", "Cundinamarca", "Valle del Cauca"];
-    const ciudades: { [key: string]: string[] } = {
-        Antioquia: ["Medellín", "Envigado", "Bello"],
-        Cundinamarca: ["Bogotá", "Soacha", "Chía"],
-        "Valle del Cauca": ["Cali", "Palmira", "Buenaventura"],
-    };
 
     const handleChange = (e: ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
         const { name, value, type } = e.target;
+        console.log("🚀 ~ handleChange ~ value:", value)
         setFormData((prev) => ({
             ...prev,
             [name]: type === "checkbox" && "checked" in e.target ? (e.target as HTMLInputElement).checked : value,
@@ -69,6 +65,20 @@ export function CtaDark() {
         enlaceDescarga.download = "codigo-sorteo.txt";
         enlaceDescarga.click();
         URL.revokeObjectURL(enlaceDescarga.href);
+    };
+
+    const handleAlphanumeric = (e: KeyboardEvent<HTMLInputElement>) => {
+        const regex = /^[a-zA-Z0-9]*$/;
+        if (!regex.test(e.key)) {
+            e.preventDefault();
+        }
+    };
+
+    const handleNumeric = (e: KeyboardEvent<HTMLInputElement>) => {
+        const allowedKeys = ["Backspace", "Delete", "ArrowLeft", "ArrowRight", "Tab"];
+        if (!/^\d$/.test(e.key) && !allowedKeys.includes(e.key)) {
+            e.preventDefault();
+        }
     };
 
     const handleSubmit = (e: FormEvent) => {
@@ -116,6 +126,7 @@ export function CtaDark() {
                             required
                             value={formData.nombre}
                             onChange={handleChange}
+                            onKeyDown={handleAlphanumeric}
                             className="w-full p-2 rounded-md border border-gray-300 text-[#9CA6B1] placeholder-[#9CA6B1]"
                         />
                         <input
@@ -125,6 +136,7 @@ export function CtaDark() {
                             required
                             value={formData.apellido}
                             onChange={handleChange}
+                            onKeyDown={handleAlphanumeric}
                             className="w-full p-2 rounded-md border border-gray-300 text-[#9CA6B1] placeholder-[#9CA6B1]"
                         />
                         <input
@@ -134,6 +146,7 @@ export function CtaDark() {
                             required
                             value={formData.cedula}
                             onChange={handleChange}
+                            onKeyDown={handleNumeric}
                             className="w-full p-2 rounded-md border border-gray-300 text-[#9CA6B1] placeholder-[#9CA6B1]"
                         />
                         <select
@@ -163,12 +176,13 @@ export function CtaDark() {
                             </select>
                         )}
                         <input
-                            type="tel"
+                            type="number"
                             name="celular"
                             placeholder="Celular"
                             required
                             value={formData.celular}
                             onChange={handleChange}
+                            onKeyDown={handleNumeric}
                             className="w-full p-2 rounded-md border border-gray-300 text-[#9CA6B1] placeholder-[#9CA6B1]"
                         />
                         <input
